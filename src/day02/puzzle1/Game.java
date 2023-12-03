@@ -1,4 +1,4 @@
-package day02.puzzle01;
+package day02.puzzle1;
 
 import java.util.Arrays;
 

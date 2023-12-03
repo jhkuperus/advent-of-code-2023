@@ -1,4 +1,4 @@
-package day01.puzzle01;
+package day01.puzzle1;
 
 
 import java.util.function.Predicate;

@@ -1,7 +1,6 @@
-package day02.puzzle01;
+package day02.puzzle1;
 
 import java.util.Arrays;
-import java.util.stream.Stream;
 
 public class GameFilter {
 

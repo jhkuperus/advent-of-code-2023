@@ -1,7 +1,7 @@
-package day01.puzzle02;
+package day01.puzzle2;
 
 
-import day01.puzzle01.CalibrationDocument;
+import day01.puzzle1.CalibrationDocument;
 
 import java.util.Arrays;
 import java.util.HashMap;
