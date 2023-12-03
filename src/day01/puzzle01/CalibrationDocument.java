@@ -3,6 +3,23 @@ package day01.puzzle01;
 public class CalibrationDocument {
 
 
+  public static String SAMPLE_ONE = """
+      1abc2
+      pqr3stu8vwx
+      a1b2c3d4e5f
+      treb7uchet
+      """; // Should be 142
+
+  public static String SAMPLE_TWO = """
+      two1nine
+      eightwothree
+      abcone2threexyz
+      xtwone3four
+      4nineeightseven2
+      zoneight234
+      7pqrstsixteen
+      """; // Should be 281
+
   public static String VALUE = """
       46threevqs8114
       threetwoonez1gtrd
