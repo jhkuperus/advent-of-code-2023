@@ -7,7 +7,7 @@ import java.util.Comparator;
 import static day05.puzzle1.ParsedInput.mappings;
 import static day05.puzzle1.ParsedInput.seeds;
 
-public class AlmanakStuff {
+public class Almanak {
 
   public record AlmanakMap(String from, String to, MapRange[] ranges) {
 
