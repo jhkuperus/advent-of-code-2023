@@ -1,7 +1,7 @@
 package day01.puzzle2;
 
 
-import day01.puzzle1.CalibrationDocument;
+import day01.puzzle1.Input;
 
 import java.util.Arrays;
 import java.util.HashMap;
@@ -12,7 +12,7 @@ public class CalibrationFilter {
 
   public static void main(String[] args) {
 
-    System.out.println(CalibrationDocument.VALUE.lines()
+    System.out.println(Input.VALUE.lines()
         .parallel()
         .filter(Predicate.not(String::isBlank))
         .mapToInt(line -> {

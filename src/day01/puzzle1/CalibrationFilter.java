@@ -7,7 +7,7 @@ public class CalibrationFilter {
 
   public static void main(String[] args) {
 
-    System.out.println(CalibrationDocument.VALUE.lines()
+    System.out.println(Input.VALUE.lines()
         .parallel()
         .filter(Predicate.not(String::isBlank))
         .mapToInt(line -> {
