@@ -3,7 +3,6 @@ package day02.puzzle2;
 import day02.puzzle1.CubeSet;
 import day02.puzzle1.Game;
 import day02.puzzle1.GameFilter;
-import day02.puzzle1.GameList;
 
 import java.util.Arrays;
 
