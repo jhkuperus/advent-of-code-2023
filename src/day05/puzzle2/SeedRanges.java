@@ -8,8 +8,9 @@ import java.util.function.Predicate;
 import java.util.stream.IntStream;
 import java.util.stream.LongStream;
 
-import static day05.puzzle1.Almanak.lines;
-import static day05.puzzle1.Almanak.mappings;
+import static day05.puzzle1.ParsedInput.lines;
+import static day05.puzzle1.ParsedInput.mappings;
+
 
 public class SeedRanges {
 
