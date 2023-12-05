@@ -5,7 +5,8 @@ import day04.puzzle1.Card;
 import java.util.Arrays;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import static day04.puzzle1.ScratchCardInput.cards;
+import static day04.puzzle1.ParsedInput.cards;
+
 
 public class TotalScratchCards {
 

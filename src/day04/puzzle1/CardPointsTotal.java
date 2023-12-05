@@ -6,7 +6,7 @@ import java.util.function.Predicate;
 
 public class CardPointsTotal {
   public static void main(String[] args) {
-    System.out.println(Arrays.stream(ScratchCardInput.cards)
+    System.out.println(Arrays.stream(ParsedInput.cards)
         .map(Card::getWinningNumbersYouHave)
         .filter(Predicate.not(Set::isEmpty))
         .mapToInt(s -> 1 << (s.size() - 1))
