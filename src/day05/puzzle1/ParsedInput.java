@@ -38,9 +38,9 @@ public class ParsedInput {
           }
       );
 
-  public static Map<String, Almanak.AlmanakMap> mappings = mapBlocks.stream()
-      .map(Almanak.AlmanakMap::parse)
-      .collect(Collectors.toMap(Almanak.AlmanakMap::from, Function.identity()));
+  public static Map<String, AlmanakStuff.AlmanakMap> mappings = mapBlocks.stream()
+      .map(AlmanakStuff.AlmanakMap::parse)
+      .collect(Collectors.toMap(AlmanakStuff.AlmanakMap::from, Function.identity()));
 
 
 }

@@ -1,6 +1,7 @@
 package day05.puzzle2;
 
 import day05.puzzle1.Almanak;
+import day05.puzzle1.AlmanakStuff;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -38,7 +39,7 @@ public class SeedRanges {
 
           while (mappings.containsKey(currentRanges.getFirst().type)) {
             var nextStage = new ArrayList<Range>();
-            final Almanak.AlmanakMap almanakMap = mappings.get(currentRanges.getFirst().type);
+            final AlmanakStuff.AlmanakMap almanakMap = mappings.get(currentRanges.getFirst().type);
 
             for (Range currentRange : currentRanges) {
               nextStage.addAll(mapRange(currentRange, almanakMap));
@@ -56,7 +57,7 @@ public class SeedRanges {
     System.out.println(minimumLocation);
   }
 
-  public static ArrayList<Range> mapRange(Range source, Almanak.AlmanakMap mapping) {
+  public static ArrayList<Range> mapRange(Range source, AlmanakStuff.AlmanakMap mapping) {
     var results = new ArrayList<Range>();
     var remainder = source;
 
