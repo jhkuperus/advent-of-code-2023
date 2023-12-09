@@ -12,6 +12,9 @@ public class DesertMap {
 
   public record Room(String id, String left, String right) {
 
+    public boolean isStartingRoom() { return id.charAt(id.length() - 1) == 'A'; }
+    public boolean isEndingRoom() { return id.charAt(id.length() - 1) == 'Z'; }
+
     public String nextFromInstruction(char instr) {
       return switch (instr) {
         case 'L' -> left;
@@ -49,28 +52,28 @@ public class DesertMap {
 
   public static void main(String[] args) {
     System.out.println(theRooms);
-    final String result = instructionsToSolveTheMap();
+    final long result = instructionsToSolveTheMap(start, stop);
     System.out.println(result);
-    System.out.println(result.length());
   }
 
 
-  public static final String instructionsToSolveTheMap() {
-    final StringBuilder result = new StringBuilder();
+  public static final long instructionsToSolveTheMap(String from, String to) {
+    var steps = 0L;
 
-    var currentPosition = start;
+    var currentPosition = from;
     var positionInInstructions = 0;
 
-    while (!currentPosition.equals(stop)) {
+    while (!currentPosition.equals(to)) {
       var nextInstruction = theInstructions.instr.charAt(positionInInstructions);
       var nextPosition = theMap.get(currentPosition).nextFromInstruction(nextInstruction);
-      result.append(nextInstruction);
+
+      steps++;
 
       currentPosition = nextPosition;
       positionInInstructions = (positionInInstructions + 1) % theInstructions.instr.length();
     }
 
-    return result.toString();
+    return steps;
   }
 
 }
