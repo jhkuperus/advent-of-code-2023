@@ -1,15 +1,14 @@
 package day10.puzzle1;
 
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
-import static day10.puzzle1.Input.PUZZLE_INPUT;
-import static day10.puzzle1.Input.SAMPLE;
+import static day10.puzzle1.Input.*;
 
 public class PipeMaze {
 
+//  public static final String PUZZLE_TO_RUN = SAMPLE_PART_TWO_B;
   public static final String PUZZLE_TO_RUN = PUZZLE_INPUT;
 
   public static final char[][] GRID = PUZZLE_TO_RUN.lines()
@@ -22,6 +21,16 @@ public class PipeMaze {
       .map(String::toCharArray)
       .toArray(char[][]::new);
 
+  public static final char[][] COPY_GRID = Arrays.stream(GRID)
+      .map(l -> {
+        var emptyLine = new char[l.length];
+        Arrays.fill(emptyLine, '.');
+        return emptyLine;
+      }).toArray(char[][]::new);
+
+  public static final boolean[][] TOUCHED_GRID = Arrays.stream(GRID)
+      .map(l -> new boolean[l.length]).toArray(boolean[][]::new);
+
 
   /*
     | is a vertical pipe connecting north and south.
@@ -33,10 +42,12 @@ public class PipeMaze {
     . is ground; there is no pipe in this tile.
     S is the starting position of the animal; there is a pipe on this tile, but your sketch doesn't show what shape the pipe has.
    */
-  public static void printMaze() {
-    for (char[] line : GRID) {
+  public static void printMaze(char[][] grid) {
+    System.out.println(" [ Grid Start ]");
+    for (char[] line : grid) {
       System.out.println(line);
     }
+    System.out.println(" [ Grid End   ]");
   }
 
   public static Coord findStart() {
@@ -165,6 +176,7 @@ public class PipeMaze {
       var directionRight = exitsOfStart.b;
       rightPos = directionRight.moveToFrom(new Coord(startX, startY, null));
 
+      COPY_GRID[startY][startX] = GRID[startY][startX];
       GRID[startY][startX] = '*';
     }
 
@@ -188,6 +200,7 @@ public class PipeMaze {
       }
 
       var availableExit = exits.get(pipeChar).otherThan(start.from);
+      COPY_GRID[start.y][start.x] = GRID[start.y][start.x];
       GRID[start.y][start.x] = '*';
       availableExit.moveToFrom(start);
       distanceCounter[0]++;
@@ -196,16 +209,224 @@ public class PipeMaze {
 
   }
 
+  public enum FullDir {
+    N(Dir.NORTH.xMod, Dir.NORTH.yMod),
+    E(Dir.EAST.xMod, Dir.EAST.yMod),
+    S(Dir.SOUTH.xMod, Dir.SOUTH.yMod),
+    W(Dir.WEST.xMod, Dir.WEST.yMod),
+    NE(Dir.NORTH.xMod.compose(Dir.EAST.xMod), Dir.NORTH.yMod.compose(Dir.EAST.yMod)),
+    NW(Dir.NORTH.xMod.compose(Dir.WEST.xMod), Dir.NORTH.yMod.compose(Dir.WEST.yMod)),
+    SE(Dir.SOUTH.xMod.compose(Dir.EAST.xMod), Dir.SOUTH.yMod.compose(Dir.EAST.yMod)),
+    SW(Dir.SOUTH.xMod.compose(Dir.WEST.xMod), Dir.SOUTH.yMod.compose(Dir.WEST.yMod));
+
+    private final Function<Integer, Integer> xMod;
+    private final Function<Integer, Integer> yMod;
+
+    FullDir(Function<Integer, Integer> xMod, Function<Integer, Integer> yMod) {
+      this.xMod = xMod;
+      this.yMod = yMod;
+    }
+
+    public Optional<Character> characterInThisDirectionFrom(int x, int y, char[][] grid) {
+      final Integer newY = this.yMod.apply(y);
+      final Integer newX = this.xMod.apply(x);
+
+      if (newY < 0 || newY >= grid.length) {
+        return Optional.empty();
+      }
+      if (newX < 0 || newX >= grid[y].length) {
+        return Optional.empty();
+      }
+      return Optional.of(grid[newY][newX]);
+    }
+
+  }
+
+
+//  sealed interface Floodable {
+//    int x(); int y();
+//
+//    boolean isPipe();
+//
+//  }
+
+  public record XY(int x, int y) {}
+//  public record XY(int x, int y) implements Floodable {}
+
+
+  public static void floodFill(char[][] grid) {
+    Queue<XY> nextFloodable = new LinkedList<>();
+
+    // Fill the queue with border cells that are not part of the loop
+    for (int x = 0; x < grid[0].length; x++) {
+      if (grid[0][x] == '.') nextFloodable.offer(new XY(x, 0));
+      if (grid[grid.length - 1][x] == '.') nextFloodable.offer(new XY(x, grid.length - 1));
+    }
+
+    for (int y = 0; y < grid.length; y++) {
+      if (grid[y][0] == '.') nextFloodable.offer(new XY(0, y));
+      if (grid[y][grid[y].length - 1] == '.') nextFloodable.offer(new XY(grid[y].length - 1, y));
+    }
+
+    while (!nextFloodable.isEmpty()) {
+      var flood = nextFloodable.poll();
+      if (grid[flood.y][flood.x] == 'X' || grid[flood.y][flood.x] != '.') continue;
+      grid[flood.y][flood.x] = 'X';
+      for (FullDir dir : FullDir.values()) {
+        var dirX = dir.xMod.apply(flood.x);
+        var dirY = dir.yMod.apply(flood.y);
+        if (dir.characterInThisDirectionFrom(flood.x, flood.y, grid).isPresent()) {
+          if (grid[dirY][dirX] == '.') {
+            nextFloodable.offer(new XY(dirX, dirY));
+          }
+        }
+      }
+    }
+  }
+
   public static void main(String[] args) {
-    printMaze();
+    printMaze(GRID);
 
     final Coord start = findStart();
     final PuzzleSolver solver = new PuzzleSolver(start.x, start.y);
     var longestDistance = solver.findLongestDistanceFromStart();
 
-    printMaze();
+    printMaze(COPY_GRID);
 
     System.out.println(longestDistance);
+
+    char[][] boom = new char[3 * COPY_GRID.length][];
+    for (int y3 = 0; y3 < COPY_GRID.length; y3++) {
+      boom[3 * y3] = new char[3 * COPY_GRID[y3].length];
+      boom[(3 * y3) + 1] = new char[3 * COPY_GRID[y3].length];
+      boom[(3 * y3) + 2] = new char[3 * COPY_GRID[y3].length];
+    }
+
+    for (int y = 0; y < COPY_GRID.length; y++) {
+      for (int x = 0; x < COPY_GRID[y].length; x++) {
+
+        // Resize the original grid...
+
+        var x3 = 3 * x;
+        var y3 = 3 * y;
+
+        //║
+        //═
+        //╚
+        //╝
+        //╗
+        //╔
+
+        if (COPY_GRID[y][x] == '.') {
+          boom[y3][x3] = '.';
+          boom[y3][x3 + 1] = '.';
+          boom[y3][x3 + 2] = '.';
+          boom[y3 + 1][x3] = '.';
+          boom[y3 + 1][x3 + 1] = '.';
+          boom[y3 + 1][x3 + 2] = '.';
+          boom[y3 + 2][x3] = '.';
+          boom[y3 + 2][x3 + 1] = '.';
+          boom[y3 + 2][x3 + 2] = '.';
+        }
+        else if (COPY_GRID[y][x] == '║') {
+          boom[y3][x3] = '.';
+          boom[y3][x3 + 1] = '║';
+          boom[y3][x3 + 2] = '.';
+          boom[y3 + 1][x3] = '.';
+          boom[y3 + 1][x3 + 1] = '║';
+          boom[y3 + 1][x3 + 2] = '.';
+          boom[y3 + 2][x3] = '.';
+          boom[y3 + 2][x3 + 1] = '║';
+          boom[y3 + 2][x3 + 2] = '.';
+        }
+        else if (COPY_GRID[y][x] == '═') {
+          boom[y3][x3] = '.';
+          boom[y3][x3 + 1] = '.';
+          boom[y3][x3 + 2] = '.';
+          boom[y3 + 1][x3] = '═';
+          boom[y3 + 1][x3 + 1] = '═';
+          boom[y3 + 1][x3 + 2] = '═';
+          boom[y3 + 2][x3] = '.';
+          boom[y3 + 2][x3 + 1] = '.';
+          boom[y3 + 2][x3 + 2] = '.';
+        }
+        else if (COPY_GRID[y][x] == '╚') {
+          boom[y3][x3] = '.';
+          boom[y3][x3 + 1] = '║';
+          boom[y3][x3 + 2] = '.';
+          boom[y3 + 1][x3] = '.';
+          boom[y3 + 1][x3 + 1] = '╚';
+          boom[y3 + 1][x3 + 2] = '═';
+          boom[y3 + 2][x3] = '.';
+          boom[y3 + 2][x3 + 1] = '.';
+          boom[y3 + 2][x3 + 2] = '.';
+        }
+        else if (COPY_GRID[y][x] == '╝') {
+          boom[y3][x3] = '.';
+          boom[y3][x3 + 1] = '║';
+          boom[y3][x3 + 2] = '.';
+          boom[y3 + 1][x3] = '═';
+          boom[y3 + 1][x3 + 1] = '╝';
+          boom[y3 + 1][x3 + 2] = '.';
+          boom[y3 + 2][x3] = '.';
+          boom[y3 + 2][x3 + 1] = '.';
+          boom[y3 + 2][x3 + 2] = '.';
+        }
+        else if (COPY_GRID[y][x] == '╗') {
+          boom[y3][x3] = '.';
+          boom[y3][x3 + 1] = '.';
+          boom[y3][x3 + 2] = '.';
+          boom[y3 + 1][x3] = '═';
+          boom[y3 + 1][x3 + 1] = '╗';
+          boom[y3 + 1][x3 + 2] = '.';
+          boom[y3 + 2][x3] = '.';
+          boom[y3 + 2][x3 + 1] = '║';
+          boom[y3 + 2][x3 + 2] = '.';
+        }
+        else if (COPY_GRID[y][x] == '╔') {
+          boom[y3][x3] = '.';
+          boom[y3][x3 + 1] = '.';
+          boom[y3][x3 + 2] = '.';
+          boom[y3 + 1][x3] = '.';
+          boom[y3 + 1][x3 + 1] = '╔';
+          boom[y3 + 1][x3 + 2] = '═';
+          boom[y3 + 2][x3] = '.';
+          boom[y3 + 2][x3 + 1] = '║';
+          boom[y3 + 2][x3 + 2] = '.';
+        }
+
+
+      }
+    }
+
+    printMaze(boom);
+
+    floodFill(boom);
+
+    printMaze(boom);
+
+    char[][] scaledDown = new char[COPY_GRID.length][];
+    for (int y = 0; y < COPY_GRID.length; y++) {
+      scaledDown[y] = new char[COPY_GRID[y].length];
+    }
+
+    for (int y = 0; y < scaledDown.length; y++) {
+      for (int x = 0; x < scaledDown[y].length; x++) {
+        scaledDown[y][x] = boom[(3*y) + 1][(3*x) + 1];
+      }
+    }
+
+    printMaze(scaledDown);
+
+    var enclosedTiles = 0;
+    for (int y = 0; y < scaledDown.length; y++) {
+      for (int x = 0; x < scaledDown[y].length; x++) {
+        if (scaledDown[y][x] == '.') enclosedTiles++;
+//        if (GRID[y][x] != '*' && GRID[y][x] != 'X') enclosedTiles++;
+      }
+    }
+
+    System.out.println(enclosedTiles);
   }
 
 }
