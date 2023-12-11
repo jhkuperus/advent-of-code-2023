@@ -8,7 +8,7 @@ import java.util.stream.Stream;
 
 public class GalaxyDistance {
 
-  public static final String PUZZLE = Input.PUZZLE_INPUT;
+  public static final String PUZZLE = Input.SAMPLE;
 
   public static final char[][] GRID = swapRowsCols(expandEmptyRows(swapRowsCols(expandEmptyRows(PUZZLE.lines()
       .map(String::toCharArray)
@@ -50,16 +50,16 @@ public class GalaxyDistance {
     System.out.println(" [ Grid End   ]");
   }
 
-  record Galaxy(int id, int x, int y) {}
+  public record Galaxy(int id, int x, int y) {}
 
-  public static final Galaxy[] galaxies = findGalaxies();
+  public static final Galaxy[] galaxies = findGalaxies(GRID);
 
-  public static Galaxy[] findGalaxies() {
+  public static Galaxy[] findGalaxies(char[][] grid) {
     var result = new LinkedList<Galaxy>();
 
-    for (int y = 0; y < GRID.length; y++) {
-      for (int x = 0; x < GRID[0].length; x++) {
-        if (GRID[y][x] == '#') result.add(new Galaxy(result.size() + 1, x, y));
+    for (int y = 0; y < grid.length; y++) {
+      for (int x = 0; x < grid[0].length; x++) {
+        if (grid[y][x] == '#') result.add(new Galaxy(result.size() + 1, x, y));
       }
     }
 
