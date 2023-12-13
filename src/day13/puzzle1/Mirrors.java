@@ -4,7 +4,6 @@ import day11.puzzle1.GalaxyDistance;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -42,10 +41,12 @@ public class Mirrors {
       .collect(Collectors.toList());
 
   public record MirrorLine(int position, int size) {}
+  public record MAS(int size, boolean smudged) {}
 
   public static int findMirrorLine(char[][] grid) {
     for (int i = 0; i < grid.length - 1; i++) {
-      if (findMirrorSize(grid, i) > 0) {
+      final MAS mirrorSize = findMirrorSize(grid, i);
+      if (mirrorSize.size > 0 && mirrorSize.smudged) {
         return i + 1;
       }
     }
@@ -53,18 +54,38 @@ public class Mirrors {
     return -1;
   }
 
-  public static int findMirrorSize(char[][] grid, int mirrorAfter) {
+  public static boolean hasOneMismatch(char[] a, char[] b) {
+    var nrOfMismatches = 0;
+    for (int i = 0; i < a.length; i++) {
+      final int mismatch = Arrays.mismatch(a, i, a.length, b, i, b.length);
+      if (mismatch >= 0) {
+        nrOfMismatches++;
+        if (nrOfMismatches > 1) {
+          return false;
+        }
+        i = mismatch;
+      }
+    }
+
+    return true;
+  }
+
+  public static MAS findMirrorSize(char[][] grid, int mirrorAfter) {
     var size = 0;
+    boolean smudgeApplied = false;
 
     for (int i = 0; (mirrorAfter - i) >= 0 && (i + mirrorAfter + 1) < grid.length; i++) {
       if (Arrays.equals(grid[mirrorAfter - i], grid[mirrorAfter + i + 1])) {
         size++;
+      } else if (!smudgeApplied && hasOneMismatch(grid[mirrorAfter - i], grid[mirrorAfter + i + 1])) {
+        smudgeApplied = true;
+        size++;
       } else {
-        return -1;
+        return new MAS(-1, smudgeApplied);
       }
     }
 
-    return size;
+    return new MAS(size, smudgeApplied);
   }
 
   public static void main(String[] args) {
