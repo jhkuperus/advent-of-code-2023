@@ -44,20 +44,13 @@ public class Mirrors {
   public record MirrorLine(int position, int size) {}
 
   public static int findMirrorLine(char[][] grid) {
-    var mirrors = new ArrayList<MirrorLine>();
     for (int i = 0; i < grid.length - 1; i++) {
-      if (Arrays.equals(grid[i], grid[i + 1])) {
-        final int mirrorSize = findMirrorSize(grid, i);
-        if (mirrorSize > 0) {
-          return i + 1;
-//          mirrors.add(new MirrorLine(i, mirrorSize));
-        }
-//        mirrorAfter = i;
+      if (findMirrorSize(grid, i) > 0) {
+        return i + 1;
       }
     }
 
     return -1;
-//    return mirrors.stream().sorted(Comparator.comparing(MirrorLine::size)).findFirst().map(MirrorLine::position).orElseGet(() -> -1);
   }
 
   public static int findMirrorSize(char[][] grid, int mirrorAfter) {
