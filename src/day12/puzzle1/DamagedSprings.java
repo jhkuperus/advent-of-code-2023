@@ -5,10 +5,14 @@ import java.util.function.Predicate;
 
 public class DamagedSprings {
 
-  public record Group(String springs) {
+  public record Group(String springs, boolean hasUnknowns, boolean hasKnowns) {
     @Override
     public String toString() {
       return springs;
+    }
+
+    public static Group parse(String input) {
+      return new Group(input, input.indexOf('?') >= 0, input.indexOf('#') >= 0);
     }
   }
 
@@ -20,9 +24,9 @@ public class DamagedSprings {
 
     private int variate(int accumulator, char[] work, int nextWorkIndex, int nextGroupIndex) {
       if (nextGroupIndex >= groupSizes.length) {
-        // All groups were fitted
+        // All group were fitted
 
-        // Final Check: if sum is higher than sum of groups, reject solution
+        // Final Check: if sum is higher than sum of group, reject solution
         var nrOfBroken = 0;
         for (int i = 0; i < work.length; i++) {
           if (work[i] == '#')
@@ -53,7 +57,7 @@ public class DamagedSprings {
                     && ((previousIndex >= 0 && work[previousIndex] != '#') || previousIndex < 0);
 
         if (groupFits) {
-          // If the group fits, try to fit the remaining groups after it
+          // If the group fits, try to fit the remaining group after it
           final char[] copy = Arrays.copyOf(work, work.length);
           for (int idx = x; idx < nextIndex; idx++) copy[idx] = '#';
           accumulator = variate(accumulator, copy, x + groupSizes[nextGroupIndex] + 1, nextGroupIndex + 1);
@@ -67,8 +71,10 @@ public class DamagedSprings {
 
     public static Line parse(String input) {
       final String[] parts = input.split(" ");
-//      parts[0] = parts[0] + "?" + parts[0] + "?" + parts[0] + "?" + parts[0] + "?" + parts[0];
-//      parts[1] = parts[1] + "," + parts[1] + "," + parts[1] + "," + parts[1] + "," + parts[1];
+//      parts[0] = parts[0] + "?" + parts[0];
+      parts[0] = parts[0] + "?" + parts[0] + "?" + parts[0] + "?" + parts[0] + "?" + parts[0];
+//      parts[1] = parts[1] + "," + parts[1];
+      parts[1] = parts[1] + "," + parts[1] + "," + parts[1] + "," + parts[1] + "," + parts[1];
       final int[] groupSizes = Arrays.stream(parts[1].split(","))
           .mapToInt(Integer::valueOf)
           .toArray();
@@ -76,7 +82,7 @@ public class DamagedSprings {
       final String compact = parts[0].replaceAll("\\.+", ".");
       final Group[] groups = Arrays.stream(compact.split("\\."))
           .filter(Predicate.not(String::isBlank))
-          .map(Group::new)
+          .map(Group::parse)
           .toArray(Group[]::new);
 
       final int expectedTotalDamaged = Arrays.stream(groupSizes).sum();
@@ -100,10 +106,10 @@ public class DamagedSprings {
 
 
   public static void main(String[] args) {
-//    for (int i = 0; i < lines.length; i++) {
-//      System.out.println(STR."\{new String(lines[i].compact)} - \{Arrays.toString(lines[i].groupSizes)} - \{lines[i].variations()}");
-//      System.out.println(lines[i].variations());
-//    }
+    for (int i = 0; i < lines.length; i++) {
+      System.out.println(STR."\{new String(lines[i].compact)} - \{Arrays.toString(lines[i].groupSizes)} - \{lines[i].variations()}");
+      System.out.println(lines[i].variations());
+    }
 
     System.out.println(Arrays.stream(lines)
         .parallel()
