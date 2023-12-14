@@ -11,7 +11,7 @@ public class RollingRocks {
 
   public static final String INPUT = Input.PUZZLE;
 
-  public static final char[][] grid = INPUT.lines()
+  public static char[][] grid = INPUT.lines()
       .map(String::toCharArray)
       .toArray(char[][]::new);
 
