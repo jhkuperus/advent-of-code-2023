@@ -95,8 +95,8 @@ public class PipeMaze {
         WEST, EAST
     );
 
-    private final Function<Integer, Integer> xMod;
-    private final Function<Integer, Integer> yMod;
+    public final Function<Integer, Integer> xMod;
+    public final Function<Integer, Integer> yMod;
 
     Dir(Function<Integer, Integer> xMod, Function<Integer, Integer> yMod) {
       this.xMod = xMod;
